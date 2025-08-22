@@ -1,22 +1,30 @@
 import axios from 'axios';
+import { getToken, clearAuth } from './auth';
 
-// Use relative path so nginx can proxy /api to :8080
-const base = '/api';
+export const api = axios.create({
+  baseURL: '/api', // nginx proxies this to your server
+});
 
-export const api = axios.create({ baseURL: base });
-
-// Token helpers
-export function setAuthToken(token: string | null) {
-  if (token) {
-    localStorage.setItem('authToken', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    localStorage.removeItem('authToken');
-    delete api.defaults.headers.common['Authorization'];
+api.interceptors.request.use((config) => {
+  const t = getToken();
+  if (t) {
+    config.headers = config.headers || {};
+    (config.headers as any).Authorization = `Bearer ${t}`;
   }
-}
+  return config;
+});
 
-// Initialize from storage
-const stored = localStorage.getItem('authToken');
-if (stored) setAuthToken(stored);
+api.interceptors.response.use(
+  r => r,
+  err => {
+    if (err?.response?.status === 401) {
+      clearAuth();
+      // prevent redirect loops if already at /login
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(err);
+  }
+);
 

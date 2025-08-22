@@ -1,0 +1,14 @@
+[Unit]
+Description=Heracles API
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/opt/webapps/heracles/server
+EnvironmentFile=/opt/webapps/heracles/server/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
