@@ -11,7 +11,8 @@ import { Login } from './pages/Login';
 import { RequireAuth } from './components/RequireAuth';
 import { RequireAdmin } from './components/RequireAdmin';
 import { clearAuth, getUser } from './auth';
-import { Admin, isAuthed } from './pages/Admin';
+import { Admin } from './pages/Admin';
+import { isAuthed } from './auth';
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   return (
